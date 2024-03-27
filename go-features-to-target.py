@@ -125,26 +125,28 @@ redshift_test = scaler_redshift.transform(redshift_test.reshape(-1, 1)).ravel()
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 
+
 # Spectra input 
 spectra_input = tf.keras.Input(shape=(X.shape[1],), name='spectra_input')
 
 # Redshift input
 redshift_input = tf.keras.Input(shape=(1,), name='redshift_input')
-redshift_layers = tf.keras.layers.Dense(10, activation='relu')(redshift_input)
-redshift_layers = tf.keras.layers.Dense(100, activation='relu')(redshift_layers)
+redshift_layers = tf.keras.layers.Dense(10, activation='selu')(redshift_input)
+redshift_layers = tf.keras.layers.Dense(100, activation='selu')(redshift_layers)
 
 # Neural network layers for spectra
-spectra_layers = tf.keras.layers.Dense(512, activation='relu')(spectra_input)
-spectra_layers = tf.keras.layers.Dense(256, activation='relu')(spectra_layers)
-spectra_layers = tf.keras.layers.Dense(128, activation='relu')(spectra_layers)
+spectra_layers = tf.keras.layers.Dense(512, activation='selu')(spectra_input)
+spectra_layers = tf.keras.layers.Dense(256, activation='selu')(spectra_layers)
+spectra_layers = tf.keras.layers.Dense(128, activation='selu')(spectra_layers)
 
 # Combine spectra and redshift inputs
 combined = tf.keras.layers.concatenate([spectra_layers, redshift_layers])
 
 # Continue with more layers as needed
-combined_layers = tf.keras.layers.Dense(128, activation='relu')(combined)
-combined_layers = tf.keras.layers.Dense(64, activation='relu')(combined_layers)
-combined_layers = tf.keras.layers.Dense(32, activation='relu')(combined_layers)
+combined_layers = tf.keras.layers.Dense(128, activation='selu')(combined)
+combined_layers = tf.keras.layers.Dense(64, activation='selu')(combined_layers)
+combined_layers = tf.keras.layers.Dense(32, activation='selu')(combined_layers)
+
 
 # Output layer for regression
 output = tf.keras.layers.Dense(1)(combined_layers)  
@@ -153,9 +155,10 @@ output = tf.keras.layers.Dense(1)(combined_layers)
 model = tf.keras.models.Model(inputs=[spectra_input, redshift_input], outputs=output)
 
 # Compile the model
-model.compile(optimizer=Adam(learning_rate=0.0001), loss='mse')
+model.compile(optimizer=Adam(learning_rate=0.00005), loss='mse')
 
 model.summary()
+
 
 #%%
 # Train the model
